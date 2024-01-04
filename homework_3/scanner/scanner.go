@@ -5,14 +5,14 @@ import (
 	"os"
 )
 
-func ScanUserInput() string {
-	var userInput string
+func ScanUserInput() (string, error) {
+	scanner := bufio.NewReader(os.Stdin)
 
-	scanner := bufio.NewScanner(os.Stdin)
+	userInput, err := scanner.ReadString('\n')
 
-	for scanner.Scan() {
-		userInput = scanner.Text()
+	if err != nil {
+		return "", err
 	}
 
-	return userInput
+	return userInput, nil
 }
