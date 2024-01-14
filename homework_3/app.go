@@ -10,56 +10,100 @@ import (
 	"github.com/andrei1998Front/go_course/homework_3/scanner"
 )
 
-func CreateArrOfDuplicateValues(sym string, l int) []string {
+func CreateArrOfDuplicateValues(sym string, l int) ([]string, error) {
 	var arr []string
+
+	if l < 0 {
+		return nil, errors.New("Количество дублирующихся символов не может быть отрицательным")
+	}
 
 	for i := 0; i < l; i++ {
 		arr = append(arr, sym)
 	}
 
-	return arr
+	return arr, nil
 }
 
-func checkNextValue(value string) bool {
+func checkValue(value string) (int, bool) {
 	if value == "0" {
-		return true
+		return 0, true
 	}
 
-	_, err := strconv.Atoi(value)
+	val, err := strconv.Atoi(value)
 
 	if err == nil {
-		return true
+		return val, true
 	} else {
-		return false
+		return -1, false
 	}
+}
+
+func appendSymbols(currentIdx int, arr []string) ([]string, error) {
+	var arrOfUnpackingString []string
+	var arrOfDublicate []string
+	var err error
+	var nextIsInt bool
+
+	nextIdx := currentIdx + 1
+	prevIdx := currentIdx - 1
+	lenArr := len(arr)
+	lastIdx := lenArr - 1
+
+	currentNum, currentIsInt := checkValue(arr[currentIdx])
+
+	if nextIdx > lastIdx {
+		if currentIsInt == false {
+			arrOfUnpackingString = append(arrOfUnpackingString, arr[currentIdx])
+		} else if nextIdx > lastIdx && currentIsInt == true {
+			arrOfDublicate, err = CreateArrOfDuplicateValues(arr[prevIdx], currentNum)
+
+			if err != nil {
+				return nil, err
+			}
+
+			arrOfUnpackingString = append(arrOfUnpackingString, arrOfDublicate...)
+		}
+	} else {
+		_, nextIsInt = checkValue(arr[nextIdx])
+
+		if currentIsInt == false && nextIsInt == false {
+			arrOfUnpackingString = append(arrOfUnpackingString, arr[currentIdx])
+		} else if currentIsInt == true {
+
+			if currentIdx == 0 {
+				return nil, errors.New("Некорректная строка! Строка начинается с числового значения")
+			} else {
+				_, prevIsInt := checkValue(arr[prevIdx])
+
+				if nextIsInt == true || prevIsInt == true {
+					return nil, errors.New("Некорректная строка! Два числовых значения подряд")
+				}
+
+				arrOfDublicate, err = CreateArrOfDuplicateValues(arr[prevIdx], currentNum)
+
+				if err != nil {
+					return nil, err
+				}
+
+				arrOfUnpackingString = append(arrOfUnpackingString, arrOfDublicate...)
+			}
+		}
+	}
+
+	return arrOfUnpackingString, nil
 }
 
 func CreateArrOfUnpackingString(symbols []string) ([]string, error) {
 	var arrOfUnpackingString []string
-	var nextIsInt bool
 
-	for key, value := range symbols {
+	for key := range symbols {
+		newSymbols, err := appendSymbols(key, symbols)
 
-		currentNum, err := strconv.Atoi(value)
-
-		if err == nil && key == 0 {
-			return nil, errors.New("Некорректная строка! Строка начинается с числового значения")
+		if err != nil {
+			return nil, err
 		}
 
-		if key+1 > len(symbols)-1 {
-			arrOfUnpackingString = append(arrOfUnpackingString, value)
-			continue
-		}
-
-		nextIsInt = checkNextValue(symbols[key+1])
-
-		if err != nil && !nextIsInt {
-			arrOfUnpackingString = append(arrOfUnpackingString, value)
-		} else if err == nil && !nextIsInt {
-			arrOfUnpackingString = append(arrOfUnpackingString, CreateArrOfDuplicateValues(symbols[key-1], currentNum)...)
-		} else if err == nil && nextIsInt {
-			return nil, errors.New("Некорректная строка! Два числовых значения подряд")
-		}
+		arrOfUnpackingString = append(arrOfUnpackingString, newSymbols...)
 	}
 
 	return arrOfUnpackingString, nil
