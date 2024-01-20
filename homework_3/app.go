@@ -42,7 +42,7 @@ func CheckEscapeSymbol(sym string) bool {
 	return false
 }
 
-func setPrevEscapeFlag(idx int, arr []string) bool {
+func SetPrevEscapeFlag(idx int, arr []string) bool {
 	if idx < 0 {
 		return false
 	}
@@ -50,7 +50,7 @@ func setPrevEscapeFlag(idx int, arr []string) bool {
 	return CheckEscapeSymbol(arr[idx])
 }
 
-func joinWithDublicate(sym string, l int) ([]string, error) {
+func JoinWithDublicate(sym string, l int) ([]string, error) {
 	arrOfDublicate, err := CreateArrOfDuplicateValues(sym, l)
 
 	if err != nil {
@@ -72,7 +72,7 @@ func appendSymbols(currentIdx int, arr []string) ([]string, error) {
 	lenArr := len(arr)
 	lastIdx := lenArr - 1
 
-	prevIsEscape = setPrevEscapeFlag(prevIdx, arr)
+	prevIsEscape = SetPrevEscapeFlag(prevIdx, arr)
 
 	currentIsEcape = CheckEscapeSymbol(arr[currentIdx])
 
@@ -86,7 +86,7 @@ func appendSymbols(currentIdx int, arr []string) ([]string, error) {
 		if currentIsInt == false || (currentIsInt == true && prevIsEscape == true) {
 			arrOfUnpackingString, errMain = append(arrOfUnpackingString, arr[currentIdx]), nil
 		} else if currentIsInt == true {
-			arrOfUnpackingString, errMain = joinWithDublicate(arr[prevIdx], currentNum)
+			arrOfUnpackingString, errMain = JoinWithDublicate(arr[prevIdx], currentNum)
 		}
 	} else {
 		_, nextIsInt = checkValue(arr[nextIdx], currentIsEcape)
@@ -99,13 +99,13 @@ func appendSymbols(currentIdx int, arr []string) ([]string, error) {
 				return nil, errors.New("Некорректная строка! Строка начинается с числового значения")
 			} else {
 
-				_, prevIsInt := checkValue(arr[prevIdx], setPrevEscapeFlag(prevIdx-1, arr))
+				_, prevIsInt := checkValue(arr[prevIdx], SetPrevEscapeFlag(prevIdx-1, arr))
 
 				if nextIsInt == true || prevIsInt == true {
 					return nil, errors.New("Некорректная строка! Два числовых значения подряд")
 				}
 
-				arrOfUnpackingString, errMain = joinWithDublicate(arr[prevIdx], currentNum)
+				arrOfUnpackingString, errMain = JoinWithDublicate(arr[prevIdx], currentNum)
 			}
 		}
 	}
