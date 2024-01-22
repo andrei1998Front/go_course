@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"log"
+)
 
 func main() {
 	list := List{}
@@ -12,12 +15,11 @@ func main() {
 
 	itemForRemove := list.First().Next().Next()
 
-	list.Remove(*itemForRemove)
+	err := list.Remove(itemForRemove)
 
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	addrItemForCheck := list.First().Next()
-	fmt.Println(list)
-	fmt.Println(addrItemForCheck)
-
-	fmt.Println(list.Len())
+	fmt.Println(list.CheckItem(itemForRemove))
 }

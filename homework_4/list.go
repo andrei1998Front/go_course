@@ -1,5 +1,9 @@
 package main
 
+import (
+	"errors"
+)
+
 type List struct {
 	len   int
 	first *Item
@@ -48,18 +52,45 @@ func (list *List) PushBack(v interface{}) {
 	list.len++
 }
 
-func (list *List) Remove(item Item) {
-	if item.prev == nil {
-		list.first = item.next
-	} else {
-		item.prev.next = item.next
+func (list *List) CheckItem(item *Item) bool {
+	start := list.First()
+
+	for i := start; i != (*Item)(nil); i = i.Next() {
+		if i == item {
+			return true
+		}
 	}
 
-	if item.next == nil {
-		list.last = item.prev
+	return false
+}
+
+func (list *List) removeSelectedItem(item *Item) {
+
+	if item.prev == nil && item.next == nil {
+		list.first = nil
+		list.last = nil
 	} else {
-		item.next.prev = item.prev
+		if item.prev == nil {
+			list.first = item.next
+		} else {
+			item.prev.next = item.next
+		}
+
+		if item.next == nil {
+			list.last = item.prev
+		} else {
+			item.next.prev = item.prev
+		}
 	}
 
 	list.len--
+}
+
+func (list *List) Remove(item *Item) error {
+	if !list.CheckItem(item) {
+		return errors.New("Удаляемый элемент не находится в списке")
+	} else {
+		list.removeSelectedItem(item)
+		return nil
+	}
 }
