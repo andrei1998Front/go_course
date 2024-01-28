@@ -7,7 +7,11 @@ import (
 	"math/rand"
 )
 
-func generateArrOfFunc(l int) []func() error {
+func generateArrOfFunc(l int) ([]func() error, error) {
+	if l < 0 {
+		return []func() error{}, errors.New("Число элементов массива не может быть отрицательным.")
+	}
+
 	var arr []func() error
 
 	for i := 0; i < l; i++ {
@@ -20,7 +24,7 @@ func generateArrOfFunc(l int) []func() error {
 		})
 	}
 
-	return arr
+	return arr, nil
 }
 
 func runMultipleParallelJobs(arrOfFunc []func() error, countParallelJobs int, maxErrCount int) (int, error) {
@@ -28,6 +32,8 @@ func runMultipleParallelJobs(arrOfFunc []func() error, countParallelJobs int, ma
 
 	if countParallelJobs > len(arrOfFunc) {
 		return 0, errors.New("Число параллельно выполняемых задач больше, чем их есть")
+	} else if countParallelJobs < 0 || maxErrCount < 0 {
+		return 0, errors.New("Аргументы функции не могут быть отрицательными")
 	}
 
 	errChan := make(chan error, maxErrCount)
@@ -54,7 +60,11 @@ func runMultipleParallelJobs(arrOfFunc []func() error, countParallelJobs int, ma
 }
 
 func main() {
-	arrOfFunc := generateArrOfFunc(20)
+	arrOfFunc, err := generateArrOfFunc(20)
+
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	v, err := runMultipleParallelJobs(arrOfFunc, 20, 1)
 
