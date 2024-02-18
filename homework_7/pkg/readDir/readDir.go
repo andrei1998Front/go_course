@@ -2,7 +2,6 @@ package readdir
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"io/fs"
 	"os"
@@ -48,7 +47,6 @@ func getFileContent(pth string) (string, error) {
 	var buf = make([]byte, fileStat.Size())
 
 	_, err = io.ReadFull(file, buf)
-	fmt.Println(buf)
 
 	if err != nil {
 		return "", errors.New("Ошибка чтения файла переменной-окружения, расположенного по пути \"" + pth + "\": " + err.Error())
@@ -95,6 +93,5 @@ func ReadDir(dir string) (map[string]string, error) {
 		return nil, err
 	}
 
-	fmt.Println(result)
 	return result, nil
 }
