@@ -5,14 +5,17 @@ import (
 	"io"
 	"io/fs"
 	"os"
-	"path"
 	"path/filepath"
 	"regexp"
 )
 
 var re_list = []string{".+_ENV$", ".+_VAR$"}
 
-func checkFileName(fileName string) (bool, error) {
+func checkFileName(fileName string, re_list []string) (bool, error) {
+	if len(re_list) == 0 {
+		return false, errors.New("массив регулярных выражений не может быть пустым")
+	}
+
 	for _, re_item := range re_list {
 		re, err := regexp.Compile(re_item)
 
@@ -26,6 +29,16 @@ func checkFileName(fileName string) (bool, error) {
 	}
 
 	return false, nil
+}
+
+func checkPathExist(pth string) error {
+	_, err := os.Stat(pth)
+
+	if err != nil {
+		return errors.New("Ошибка чтения пути: " + err.Error())
+	}
+
+	return nil
 }
 
 func getFileContent(pth string) (string, error) {
@@ -58,12 +71,19 @@ func getFileContent(pth string) (string, error) {
 func ReadDir(dir string) (map[string]string, error) {
 	var result = make(map[string]string)
 
-	err := filepath.WalkDir(dir, func(pth string, info fs.DirEntry, err error) error {
+	err := checkPathExist(dir)
+
+	if err != nil {
+		return map[string]string{}, err
+	}
+
+	err = filepath.WalkDir(dir, func(pth string, info fs.DirEntry, err error) error {
+
 		if info.IsDir() {
 			return nil
 		}
 
-		matched, er := checkFileName(info.Name())
+		matched, er := checkFileName(info.Name(), re_list)
 
 		if er != nil {
 			return er
@@ -73,7 +93,7 @@ func ReadDir(dir string) (map[string]string, error) {
 			return nil
 		}
 
-		fPath, er := filepath.Abs(path.Join(dir, pth))
+		fPath, er := filepath.Abs(pth)
 
 		if er != nil {
 			return errors.New("Ошибка получения абсолютного пути файла: " + er.Error())

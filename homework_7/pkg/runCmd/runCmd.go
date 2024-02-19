@@ -33,10 +33,10 @@ func RunCmd(cmd []string, env map[string]string) (int, error) {
 
 	if err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok {
-			return exitError.ExitCode(), err
+			return exitError.ExitCode(), errors.New("Ошибка выполнения команды: " + err.Error())
 		}
 
-		return 0, err
+		return 0, errors.New("Неизвестная команда: " + err.Error())
 	}
 
 	return 0, nil
