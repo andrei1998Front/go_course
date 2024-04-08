@@ -1,35 +1,57 @@
 package main
 
 import (
-	"fmt"
 	"log"
+	"log/slog"
+	"os"
 
-	"github.com/andrei1998Front/go_course/homework_8/internal/domain/event"
-	"github.com/andrei1998Front/go_course/homework_8/internal/interfaceadapters"
-	randomeventslist "github.com/andrei1998Front/go_course/homework_8/internal/pkg/randomEventsList"
-	"github.com/google/uuid"
+	"github.com/andrei1998Front/go_course/homework_8/internal/config"
+)
+
+const (
+	envLocal = "local"
+	envDev   = "dev"
+	envProd  = "prod"
 )
 
 func main() {
-	memoryService := interfaceadapters.NewService()
+	cfg := config.MustLoad()
 
-	fmt.Println(memoryService)
+	if _, err := os.Stat(cfg.LogFile); os.IsNotExist(err) {
+		log.Fatal("Log file is not exists")
+	}
 
-	eventsList, err := randomeventslist.GetRandomEventsList(6, 2000, 2023)
+	file, err := os.OpenFile(cfg.LogFile, os.O_APPEND, os.ModeAppend)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("error opening log file")
 	}
 
-	for _, e := range eventsList {
-		newE := event.Event{
-			ID:    uuid.New(),
-			Title: e.Title,
-			Date:  e.DateEvent,
-		}
+	log := setupLogger(cfg.Env, file)
+	log = log.With(slog.String("env", cfg.Env))
 
-		memoryService.Repo.Add(newE)
+	log.Info("dgggg")
+}
+
+func setupLogger(env string, logFile *os.File) *slog.Logger {
+	var log *slog.Logger
+
+	switch env {
+	case envLocal:
+		log = slog.New(
+			slog.NewTextHandler(logFile, &slog.HandlerOptions{Level: slog.LevelDebug}),
+		)
+
+	case envDev:
+		log = slog.New(
+			slog.NewJSONHandler(logFile, &slog.HandlerOptions{Level: slog.LevelDebug}),
+		)
+
+	case envProd:
+		log = slog.New(
+			slog.NewJSONHandler(logFile, &slog.HandlerOptions{Level: slog.LevelInfo}),
+		)
 	}
 
-	fmt.Println(memoryService.Repo)
+	return log
 }

@@ -20,7 +20,7 @@ func (r Repo) GetByID(id uuid.UUID) (*event.Event, error) {
 	e, ok := r.events[id.String()]
 
 	if !ok {
-		return &event.Event{}, &event.ErrNonExistentEvent{}
+		return &event.Event{}, event.ErrNonExistentEvent
 	}
 
 	return &e, nil
@@ -43,20 +43,20 @@ func (r Repo) GetByDate(dt time.Time) (*event.Event, error) {
 		}
 	}
 
-	return &event.Event{}, &event.ErrNonExistentDate{}
+	return &event.Event{}, event.ErrNonExistentDate
 }
 
 func (r Repo) Add(e event.Event) error {
 	_, err := r.GetByID(e.ID)
 
 	if err == nil {
-		return &event.ErrExistentID{}
+		return event.ErrExistentID
 	}
 
 	_, err = r.GetByDate(e.Date)
 
 	if err == nil {
-		return &event.ErrDateBusy{}
+		return event.ErrDateBusy
 	}
 
 	r.events[e.ID.String()] = e
@@ -86,7 +86,7 @@ func (r Repo) Update(e event.Event) error {
 	_, err = r.GetByDate(e.Date)
 
 	if err == nil {
-		return &event.ErrDateBusy{}
+		return event.ErrDateBusy
 	}
 
 	r.events[e.ID.String()] = e

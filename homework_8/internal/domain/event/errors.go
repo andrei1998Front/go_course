@@ -1,31 +1,11 @@
 package event
 
-type ErrNonExistentID struct{}
+import "errors"
 
-func (e ErrNonExistentID) Error() string {
-	return "события с таким идентификатором не существует"
-}
-
-type ErrNonExistentEvent struct{}
-
-func (e ErrNonExistentEvent) Error() string {
-	return "такого события не существует"
-}
-
-type ErrDateBusy struct{}
-
-func (e ErrDateBusy) Error() string {
-	return "событие на данную дату уже выбрано"
-}
-
-type ErrNonExistentDate struct{}
-
-func (e ErrNonExistentDate) Error() string {
-	return "события с такой датой не существует"
-}
-
-type ErrExistentID struct{}
-
-func (e ErrExistentID) Error() string {
-	return "события с таким идентификатором уже существует"
-}
+var (
+	ErrNonExistentID    = errors.New("events with this ID do not exist")
+	ErrNonExistentEvent = errors.New("no such event exists")
+	ErrDateBusy         = errors.New("an event for this date has already been selected")
+	ErrNonExistentDate  = errors.New("there is no event with this date")
+	ErrExistentID       = errors.New("events with the same ID already exist")
+)
