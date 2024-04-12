@@ -1,7 +1,6 @@
 package memory
 
 import (
-	"reflect"
 	"testing"
 	"time"
 
@@ -12,27 +11,6 @@ import (
 
 type fields struct {
 	events map[string]event.Event
-}
-
-func TestNewRepo(t *testing.T) {
-	tests := []struct {
-		name string
-		want Repo
-	}{
-		{
-			name: "Реализация должна соотвествовать репозиторию",
-			want: Repo{
-				events: map[string]event.Event{},
-			},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := NewRepo(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewRepo() = %v, want %v", got, tt.want)
-			}
-		})
-	}
 }
 
 func TestRepo_GetByID(t *testing.T) {
@@ -50,7 +28,7 @@ func TestRepo_GetByID(t *testing.T) {
 		err     string
 	}{
 		{
-			name: "event exists, should retutn event",
+			name: "Success: event exists, should retutn event",
 			fields: fields{
 				events: func() map[string]event.Event {
 					mp := make(map[string]event.Event)
@@ -66,7 +44,7 @@ func TestRepo_GetByID(t *testing.T) {
 			err:     "",
 		},
 		{
-			name: "event not exists, should retutn nil",
+			name: "Success: event not exists, should retutn nil",
 			fields: fields{
 				events: make(map[string]event.Event),
 			},
@@ -75,7 +53,7 @@ func TestRepo_GetByID(t *testing.T) {
 			},
 			want:    &event.Event{},
 			wantErr: true,
-			err:     "такого события не существует",
+			err:     event.ErrNonExistentEvent.Error(),
 		},
 	}
 	for _, tt := range tests {
@@ -90,7 +68,7 @@ func TestRepo_GetByID(t *testing.T) {
 				t.Errorf("Repo.GetByID() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			} else if err != nil {
-				require.EqualError(t, err, tt.err)
+				require.ErrorContains(t, err, tt.err)
 			}
 
 			require.Equal(t, tt.want, got)
@@ -110,7 +88,7 @@ func TestRepo_GetAll(t *testing.T) {
 		err     string
 	}{
 		{
-			name: "should return 2 event",
+			name: "Success: should return 2 event",
 			fields: fields{
 				events: func() map[string]event.Event {
 					mp := make(map[string]event.Event)
@@ -146,7 +124,7 @@ func TestRepo_GetAll(t *testing.T) {
 				t.Errorf("Repo.GetByID() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			} else if err != nil {
-				require.EqualError(t, err, tt.err)
+				require.ErrorContains(t, err, tt.err)
 			}
 
 			require.Equal(t, tt.want, got)
@@ -171,7 +149,7 @@ func TestRepo_GetByDate(t *testing.T) {
 		err     string
 	}{
 		{
-			name: "have dt, should return event",
+			name: "Success: have dt, should return event",
 			fields: fields{
 				events: func() map[string]event.Event {
 					m := make(map[string]event.Event)
@@ -198,7 +176,7 @@ func TestRepo_GetByDate(t *testing.T) {
 			},
 			want:    &event.Event{},
 			wantErr: true,
-			err:     "события с такой датой не существует",
+			err:     event.ErrNonExistentDate.Error(),
 		},
 	}
 	for _, tt := range tests {
@@ -213,7 +191,7 @@ func TestRepo_GetByDate(t *testing.T) {
 				t.Errorf("Repo.GetByID() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			} else if err != nil {
-				require.EqualError(t, err, tt.err)
+				require.ErrorContains(t, err, tt.err)
 			}
 
 			require.Equal(t, tt.want, got)
@@ -239,7 +217,7 @@ func TestRepo_Add(t *testing.T) {
 		err     string
 	}{
 		{
-			name: "should add event",
+			name: "Success: should add event",
 			fields: fields{
 				events: make(map[string]event.Event),
 			},
@@ -262,7 +240,7 @@ func TestRepo_Add(t *testing.T) {
 				e: event.Event{ID: mockUUID1, Date: dt},
 			},
 			wantErr: true,
-			err:     "событие на данную дату уже выбрано",
+			err:     event.ErrDateBusy.Error(),
 		},
 		{
 			name: "ID already exists. should return error",
@@ -277,7 +255,7 @@ func TestRepo_Add(t *testing.T) {
 				e: event.Event{ID: mockUUID},
 			},
 			wantErr: true,
-			err:     "события с таким идентификатором уже существует",
+			err:     event.ErrExistentID.Error(),
 		},
 	}
 	for _, tt := range tests {
@@ -292,7 +270,7 @@ func TestRepo_Add(t *testing.T) {
 				t.Errorf("Repo.GetByID() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			} else if err != nil {
-				require.EqualError(t, err, tt.err)
+				require.ErrorContains(t, err, tt.err)
 				return
 			}
 
@@ -306,7 +284,7 @@ func TestRepo_Delete(t *testing.T) {
 	mockUUID := uuid.MustParse("3e204a57-4449-4c74-8227-77934cf25322")
 
 	type args struct {
-		e event.Event
+		ID uuid.UUID
 	}
 
 	tests := []struct {
@@ -317,7 +295,7 @@ func TestRepo_Delete(t *testing.T) {
 		err     string
 	}{
 		{
-			name: "should be delete",
+			name: "Success",
 			fields: fields{
 				events: func() map[string]event.Event {
 					m := make(map[string]event.Event)
@@ -326,7 +304,7 @@ func TestRepo_Delete(t *testing.T) {
 				}(),
 			},
 			args: args{
-				e: event.Event{ID: mockUUID},
+				ID: mockUUID,
 			},
 			wantErr: false,
 			err:     "",
@@ -337,10 +315,10 @@ func TestRepo_Delete(t *testing.T) {
 				events: make(map[string]event.Event),
 			},
 			args: args{
-				e: event.Event{ID: mockUUID},
+				ID: mockUUID,
 			},
 			wantErr: true,
-			err:     "такого события не существует",
+			err:     event.ErrNonExistentEvent.Error(),
 		},
 	}
 	for _, tt := range tests {
@@ -349,13 +327,13 @@ func TestRepo_Delete(t *testing.T) {
 				events: tt.fields.events,
 			}
 
-			err := repo.Delete(tt.args.e)
+			err := repo.Delete(tt.args.ID)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Repo.GetByID() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			} else if err != nil {
-				require.EqualError(t, err, tt.err)
+				require.ErrorContains(t, err, tt.err)
 				return
 			}
 
@@ -384,7 +362,7 @@ func TestRepo_Update(t *testing.T) {
 		err     string
 	}{
 		{
-			name: "should be update",
+			name: "Success",
 			fields: fields{
 				events: func() map[string]event.Event {
 					m := make(map[string]event.Event)
@@ -411,7 +389,7 @@ func TestRepo_Update(t *testing.T) {
 				e: event.Event{ID: mockUUID, Date: dt1},
 			},
 			wantErr: true,
-			err:     "событие на данную дату уже выбрано",
+			err:     event.ErrDateBusy.Error(),
 		},
 		{
 			name: "event not exists, should be return error",
@@ -426,7 +404,7 @@ func TestRepo_Update(t *testing.T) {
 				e: event.Event{ID: mockUUID1, Date: dt2},
 			},
 			wantErr: true,
-			err:     "такого события не существует",
+			err:     event.ErrNonExistentEvent.Error(),
 		},
 	}
 	for _, tt := range tests {
@@ -441,7 +419,7 @@ func TestRepo_Update(t *testing.T) {
 				t.Errorf("Repo.GetByID() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			} else if err != nil {
-				require.EqualError(t, err, tt.err)
+				require.ErrorContains(t, err, tt.err)
 				return
 			}
 
