@@ -13,8 +13,12 @@ type AddEventRequest struct {
 	Date  time.Time
 }
 
+func NewAddEventRequest(title string, date time.Time) *AddEventRequest {
+	return &AddEventRequest{Title: title, Date: date}
+}
+
 type AddEventRequestHandler interface {
-	Handle(query AddEventRequest) error
+	Handle(query *AddEventRequest) error
 }
 
 type addEventRequestHandler struct {
@@ -26,7 +30,7 @@ func NewAddEventRequestHandler(log *slog.Logger, repo event.Repository) AddEvent
 	return addEventRequestHandler{log: log, repo: repo}
 }
 
-func (h addEventRequestHandler) Handle(query AddEventRequest) error {
+func (h addEventRequestHandler) Handle(query *AddEventRequest) error {
 	op := "app.queries.addEvent"
 
 	newEvent := event.Event{

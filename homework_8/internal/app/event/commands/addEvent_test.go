@@ -78,7 +78,7 @@ func TestAddEventHandler_Handle(t *testing.T) {
 			repo: mockRepo,
 		}
 
-		err := h.Handle(tc.AddEventRequest)
+		err := h.Handle(&tc.AddEventRequest)
 
 		if tc.MockError != nil {
 			require.ErrorContains(t, err, tc.MockError.Error())

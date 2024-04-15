@@ -13,9 +13,9 @@ type GetEventRequest struct {
 }
 
 type GetEventResponce struct {
-	ID    uuid.UUID
-	Title string
-	Date  time.Time
+	ID    uuid.UUID `json:"id"`
+	Title string    `json:"title"`
+	Date  time.Time `json:"date"`
 }
 
 type GetEventRequestHandler interface {

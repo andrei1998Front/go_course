@@ -9,9 +9,9 @@ import (
 )
 
 type GetAllEventResponce struct {
-	ID    uuid.UUID
-	Title string
-	Date  time.Time
+	ID    uuid.UUID `json:"id,omitempty"`
+	Title string    `json:"title,omitempty"`
+	Date  time.Time `json:"date,omitempty"`
 }
 
 type GetAllEventRequestHandler interface {

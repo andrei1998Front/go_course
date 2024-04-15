@@ -7,9 +7,8 @@ import (
 
 	"github.com/andrei1998Front/go_course/homework_8/internal/app"
 	"github.com/andrei1998Front/go_course/homework_8/internal/config"
+	"github.com/andrei1998Front/go_course/homework_8/internal/inputports"
 	"github.com/andrei1998Front/go_course/homework_8/internal/interfaceadapters"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 )
 
 const (
@@ -34,14 +33,18 @@ func main() {
 	log := setupLogger(cfg.Env, file)
 	log = log.With(slog.String("env", cfg.Env))
 
+	log.Info("starting url-shortener", slog.String("env", cfg.Env))
+	log.Debug("debug messages are enabled")
+
 	interfaceadaptersServices := interfaceadapters.NewService()
 	app := app.NewServices(interfaceadaptersServices.Repo, log)
+	inputportsService := inputports.New(log, app, cfg.HTTPServer)
 
-	router := chi.NewRouter()
-	router.Use(middleware.RequestID)
-	router.Use(middleware.Logger)
-	router.Use(middleware.Recoverer)
-	router.Use(middleware.URLFormat)
+	htppServer := inputportsService.Server.NewHTTPServer()
+
+	if err := htppServer.ListenAndServe(); err != nil {
+		log.Error("failed to start server")
+	}
 }
 
 func setupLogger(env string, logFile *os.File) *slog.Logger {

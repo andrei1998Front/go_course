@@ -28,7 +28,7 @@ func (r *Repo) GetByID(id uuid.UUID) (*event.Event, error) {
 	e, ok := r.events[id.String()]
 
 	if !ok {
-		return &event.Event{}, fmt.Errorf("%s: %w", op, event.ErrNonExistentEvent)
+		return &event.Event{}, event.ErrNonExistentEvent
 	}
 
 	return &e, nil
@@ -63,18 +63,16 @@ func (r *Repo) GetByDate(dt time.Time) (*event.Event, error) {
 }
 
 func (r *Repo) Add(e event.Event) error {
-	const op = "interfaceadapters.storage.Add"
-
 	_, err := r.GetByID(e.ID)
 
 	if err == nil {
-		return fmt.Errorf("%s: %w", op, event.ErrExistentID)
+		return event.ErrExistentID
 	}
 
 	_, err = r.GetByDate(e.Date)
 
 	if err == nil {
-		return fmt.Errorf("%s: %w", op, event.ErrDateBusy)
+		return event.ErrDateBusy
 	}
 
 	r.mutex.Lock()

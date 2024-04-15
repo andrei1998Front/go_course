@@ -3,7 +3,6 @@ package commands
 import (
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/andrei1998Front/go_course/homework_8/internal/domain/event"
 	mk "github.com/andrei1998Front/go_course/homework_8/internal/domain/event/mocks"
@@ -35,7 +34,7 @@ func TestUpdateEventHandler_Handle(t *testing.T) {
 			UpdateEventRequest: UpdateEventRequest{
 				ID:    idMocks[0],
 				Title: "sss",
-				Date:  time.Now(),
+				Date:  "2006-01-02",
 			},
 		},
 		{
@@ -43,7 +42,7 @@ func TestUpdateEventHandler_Handle(t *testing.T) {
 			UpdateEventRequest: UpdateEventRequest{
 				ID:    idMocks[1],
 				Title: "non-existent ID",
-				Date:  time.Now(),
+				Date:  "2006-01-02",
 			},
 			WantError: true,
 			MockError: fmt.Errorf(
@@ -58,7 +57,7 @@ func TestUpdateEventHandler_Handle(t *testing.T) {
 			UpdateEventRequest: UpdateEventRequest{
 				ID:    idMocks[2],
 				Title: "Date busy",
-				Date:  time.Now(),
+				Date:  "2006-01-02",
 			},
 			WantError: true,
 			MockError: fmt.Errorf(
@@ -73,7 +72,7 @@ func TestUpdateEventHandler_Handle(t *testing.T) {
 			UpdateEventRequest: UpdateEventRequest{
 				ID:    idMocks[3],
 				Title: "Invalid ID",
-				Date:  time.Now(),
+				Date:  "2006-01-02",
 			},
 			WantError:   true,
 			ExcludeMock: true,
