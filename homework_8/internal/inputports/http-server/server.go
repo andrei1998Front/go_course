@@ -8,7 +8,7 @@ import (
 	"github.com/andrei1998Front/go_course/homework_8/internal/config"
 	addevent "github.com/andrei1998Front/go_course/homework_8/internal/inputports/http-server/handlers/addEvent"
 	deleteevent "github.com/andrei1998Front/go_course/homework_8/internal/inputports/http-server/handlers/deleteEvent"
-	getalleventgo "github.com/andrei1998Front/go_course/homework_8/internal/inputports/http-server/handlers/getAllEvent.go"
+	getalleventgo "github.com/andrei1998Front/go_course/homework_8/internal/inputports/http-server/handlers/getAllEvent"
 	getevent "github.com/andrei1998Front/go_course/homework_8/internal/inputports/http-server/handlers/getEvent"
 	updateevent "github.com/andrei1998Front/go_course/homework_8/internal/inputports/http-server/handlers/updateEvent"
 	mwlogger "github.com/andrei1998Front/go_course/homework_8/internal/lib/logger/mwLogger"

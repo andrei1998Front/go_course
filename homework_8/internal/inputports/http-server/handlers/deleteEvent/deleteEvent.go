@@ -19,6 +19,7 @@ type Request struct {
 	ID string `json:"id" validate:"required,uuid"`
 }
 
+//go:generate go run github.com/vektra/mockery/v2@v2.42.1 --name=EventDeleter
 type EventDeleter interface {
 	Handle(query commands.DeleteEventRequest) error
 }

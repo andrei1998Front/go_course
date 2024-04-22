@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"fmt"
 	"log/slog"
 	"time"
 
@@ -16,6 +17,7 @@ type UpdateEventRequest struct {
 
 type UpadateEventRequestHandler interface {
 	Handle(query UpdateEventRequest) error
+	setupUpdatableEvent(req *UpdateEventRequest) (event.Event, error)
 }
 
 type updateEventRequestHandler struct {
@@ -34,6 +36,10 @@ func (h updateEventRequestHandler) Handle(query UpdateEventRequest) error {
 	const op = "app.comands.updateEvent"
 
 	log := h.log.With(slog.String("op", op))
+
+	if query.Title == "" && query.Date == "" {
+		return ErrEmptyQuery
+	}
 
 	updatetableEvent, err := h.setupUpdatableEvent(&query)
 
@@ -69,7 +75,10 @@ func (h updateEventRequestHandler) setupUpdatableEvent(req *UpdateEventRequest) 
 			return ev, err
 		}
 	}
-	err = setEmptyEventFields(&ev, evByID, req)
+
+	if err := setEmptyEventFields(&ev, evByID, req); err != nil {
+		return ev, err
+	}
 
 	return ev, nil
 }
@@ -85,11 +94,15 @@ func setEmptyEventFields(ev *event.Event, evByID *event.Event, req *UpdateEventR
 		ev.Title = evByID.Title
 	}
 
+	if req.Date == "" && evByID.Date.IsZero() {
+		return ErrInvalidDate
+	}
+
 	if req.Date != "" {
 		evDate, err := time.Parse("2006-01-02", req.Date)
 
 		if err != nil {
-			return err
+			return fmt.Errorf("%w: %w", ErrInvalidDate, err)
 		}
 
 		ev.Date = evDate

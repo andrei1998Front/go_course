@@ -1,7 +1,6 @@
 package memory
 
 import (
-	"fmt"
 	"sync"
 	"time"
 
@@ -20,8 +19,6 @@ func NewRepo() *Repo {
 }
 
 func (r *Repo) GetByID(id uuid.UUID) (*event.Event, error) {
-	const op = "interfaceadapters.storage.GetByID"
-
 	r.mutex.RLock()
 	defer r.mutex.RUnlock()
 
@@ -48,8 +45,6 @@ func (r *Repo) GetAll() ([]event.Event, error) {
 }
 
 func (r *Repo) GetByDate(dt time.Time) (*event.Event, error) {
-	const op = "interfaceadapters.storage.GetByDate"
-
 	r.mutex.RLock()
 	defer r.mutex.RUnlock()
 
@@ -59,7 +54,7 @@ func (r *Repo) GetByDate(dt time.Time) (*event.Event, error) {
 		}
 	}
 
-	return &event.Event{}, fmt.Errorf("%s: %w", op, event.ErrNonExistentDate)
+	return &event.Event{}, event.ErrNonExistentDate
 }
 
 func (r *Repo) Add(e event.Event) error {
@@ -97,8 +92,6 @@ func (r *Repo) Delete(id uuid.UUID) error {
 }
 
 func (r *Repo) Update(e event.Event) error {
-	const op = "interfaceadapters.storage.Update"
-
 	_, err := r.GetByID(e.ID)
 
 	if err != nil {
@@ -106,7 +99,7 @@ func (r *Repo) Update(e event.Event) error {
 	}
 
 	if eByDate, err := r.GetByDate(e.Date); eByDate.ID != e.ID && err == nil {
-		return fmt.Errorf("%s: %w", op, event.ErrDateBusy)
+		return event.ErrDateBusy
 	}
 
 	r.mutex.Lock()

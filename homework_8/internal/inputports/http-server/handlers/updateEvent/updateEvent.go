@@ -37,6 +37,14 @@ func New(log *slog.Logger, eventUpdater EventUpdater) http.HandlerFunc {
 
 		eventID := chi.URLParam(r, "event_id")
 
+		if eventID == "" {
+			log.Error("empty event id")
+
+			render.JSON(w, r, responce.Error("empty id"))
+
+			return
+		}
+
 		var req Request
 
 		err := render.DecodeJSON(r.Body, &req)
@@ -74,15 +82,24 @@ func New(log *slog.Logger, eventUpdater EventUpdater) http.HandlerFunc {
 			Date:  req.Date,
 		})
 
-		if errors.Is(err, event.ErrExistentID) {
-			log.Info("event id already exists")
-			render.JSON(w, r, responce.Error("event already exists"))
-
-			return
-		} else if errors.Is(err, event.ErrDateBusy) {
+		if errors.Is(err, event.ErrDateBusy) {
 			log.Error("event date is busy", slog.String("date", req.Date))
 
 			render.JSON(w, r, responce.Error("event date is busy"))
+
+			return
+		} else if errors.Is(err, commands.ErrInvalidUUID) {
+			log.Error("invalid event id", sl.Err(err))
+
+			render.JSON(w, r, responce.Error("invalid event id"))
+
+			return
+		}
+
+		if err != nil {
+			log.Error("failed to update event", sl.Err(err))
+
+			render.JSON(w, r, responce.Error("failed to update event"))
 
 			return
 		}

@@ -36,6 +36,14 @@ func New(log *slog.Logger, eventGetter EventGetter) http.HandlerFunc {
 
 		eventID := chi.URLParam(r, "event_id")
 
+		if eventID == "" {
+			log.Error("empty event id")
+
+			render.JSON(w, r, responce.Error("empty id"))
+
+			return
+		}
+
 		eventUUID, err := uuid.Parse(eventID)
 
 		if err != nil {

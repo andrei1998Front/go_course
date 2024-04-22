@@ -1,4 +1,4 @@
-package getalleventgo
+package getallevent
 
 import (
 	"log/slog"

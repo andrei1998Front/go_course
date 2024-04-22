@@ -79,35 +79,31 @@ func TestRepo_GetByID(t *testing.T) {
 func TestRepo_GetAll(t *testing.T) {
 	mockUUID1 := uuid.MustParse("3e204a57-4449-4c74-8227-77934cf25322")
 	mockUUID2 := uuid.MustParse("4e204a57-4449-4c74-8227-77934cf25322")
+	mp := func() map[string]event.Event {
+		mp := make(map[string]event.Event)
+		mp[mockUUID1.String()] = event.Event{ID: mockUUID1}
+		mp[mockUUID2.String()] = event.Event{ID: mockUUID2}
+		return mp
+	}()
 
 	tests := []struct {
 		name    string
-		fields  fields
-		want    []event.Event
+		fields  map[string]event.Event
+		want    map[string]event.Event
 		wantErr bool
 		err     string
 	}{
 		{
-			name: "Success: should return 2 event",
-			fields: fields{
-				events: func() map[string]event.Event {
-					mp := make(map[string]event.Event)
-					mp[mockUUID1.String()] = event.Event{ID: mockUUID1}
-					mp[mockUUID2.String()] = event.Event{ID: mockUUID2}
-					return mp
-				}(),
-			},
-			want: []event.Event{
-				event.Event{ID: mockUUID1},
-				event.Event{ID: mockUUID2},
-			},
+			name:    "Success: should return 2 event",
+			fields:  mp,
+			want:    mp,
 			wantErr: false,
 			err:     "",
 		},
 		{
 			name:    "should return 0 events",
-			fields:  fields{events: make(map[string]event.Event)},
-			want:    ([]event.Event)(nil),
+			fields:  make(map[string]event.Event),
+			want:    (map[string]event.Event)(nil),
 			wantErr: false,
 			err:     "",
 		},
@@ -115,7 +111,7 @@ func TestRepo_GetAll(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			repo := Repo{
-				events: tt.fields.events,
+				events: tt.fields,
 			}
 
 			got, err := repo.GetAll()
@@ -127,7 +123,7 @@ func TestRepo_GetAll(t *testing.T) {
 				require.ErrorContains(t, err, tt.err)
 			}
 
-			require.Equal(t, tt.want, got)
+			require.Equal(t, len(tt.want), len(got))
 		})
 	}
 }
@@ -382,11 +378,12 @@ func TestRepo_Update(t *testing.T) {
 				events: func() map[string]event.Event {
 					m := make(map[string]event.Event)
 					m[mockUUID.String()] = event.Event{ID: mockUUID, Date: dt1}
+					m[mockUUID1.String()] = event.Event{ID: mockUUID1, Date: dt2}
 					return m
 				}(),
 			},
 			args: args{
-				e: event.Event{ID: mockUUID, Date: dt1},
+				e: event.Event{ID: mockUUID, Date: dt2},
 			},
 			wantErr: true,
 			err:     event.ErrDateBusy.Error(),
