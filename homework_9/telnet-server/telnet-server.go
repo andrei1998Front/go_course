@@ -36,6 +36,8 @@ Loop:
 			}
 
 			log.Printf("RECEIVED: %s", text)
+
+			conn.Write([]byte(fmt.Sprintf("I have received '%s'\n", text)))
 		}
 	}
 
