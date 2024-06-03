@@ -1,0 +1,5 @@
+syntax = "proto3";
+
+package grpc_workers_server;
+
+option go_package = "./grpc_workers_server";
