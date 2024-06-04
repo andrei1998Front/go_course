@@ -1,0 +1,5 @@
+env: "local"  
+conn_str: "user=postgres password=12345 dbname=workers sslmode=disable"  
+grpc:  
+  port: 44044  
+  timeout: 10h

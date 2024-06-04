@@ -1,3 +1,13 @@
+compile:
+	protoc -I ./pkg/proto ./pkg/proto/grps_workers_server.proto --go_out=./pkg/proto/ --go_opt=paths=source_relative --go-grpc_out=./pkg/proto/ --go-grpc_opt=paths=source_relative
+
+run:
+	go run ./cmd/gws/main.go --config=./config/config.yaml
+
+build:
+	go build ./cmd/gws
+
+
 insert_employee:
 	psql -d workers \
 	 -U postgres \

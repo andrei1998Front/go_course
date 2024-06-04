@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package grpc_workers_server;
+
+option go_package = "./grpc_workers_server";
+
+service WorkersService {
+    rpc GetEployeeFullInfo(EmployeeJobGetByEmployeeName) returns(EmployeeFullInfoList);
+}
+
+message EmployeeJobGetByEmployeeName{
+    string employeeTitle = 1;
+}
+
+message EmployeeFullInfo {
+    string jobTitle = 2;
+    string employeeTitle = 3;
+    double hoursrate = 4;
+    double annualsalary = 5;
+    int32 yy = 6;
+    string typefp = 7;
+    double typicalhours = 8;
+    string departmentTitle = 9;
+}
+
+message EmployeeFullInfoList {
+    repeated EmployeeFullInfo infoList = 1;
+}
